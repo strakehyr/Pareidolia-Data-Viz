@@ -26,15 +26,10 @@
 - **Chart Types**: Line, Area, Bar, and Scatter plots supported per-series.
 - **Aesthetics**: Custom "Cafe Racer" color palettes and a cream/charcoal/rust design system.
 
-### 🧠 AI Integration
-- **Google Gemini Powered**: Integrated neural analysis to scan datasets for trends, anomalies, and quality issues.
-- **Natural Language Insights**: Get a text summary of your data's behavior without writing code.
-
 ## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js (v16+)
-- A Google Gemini API Key (Optional, for AI features)
 
 ### Installation
 
@@ -49,13 +44,7 @@
    npm install
    ```
 
-3. **Configure API Key (Optional)**
-   Create a `.env` file in the root directory:
-   ```env
-   API_KEY=your_google_gemini_api_key
-   ```
-
-4. **Run the application**
+3. **Run the application**
    ```bash
    npm start
    ```
@@ -73,7 +62,6 @@
    - Click **(+)** to add data series.
    - Assign series to **Left/Right** axes or create **New Axes** dynamically.
    - Use the **Settings** icon next to an axis to fix Min/Max ranges or rename the axis.
-   - Click the **Sparkles** icon (bottom right) to generate AI insights.
 
 ## 🎨 Aesthetics
 

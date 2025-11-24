@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
-import { Settings, Download, Plus, Trash2, RefreshCw, Sparkles, FileText, X, BarChart2, Activity, Droplet, ChevronDown, ChevronRight } from 'lucide-react';
+import { Settings, Download, Plus, Trash2, FileText, X, BarChart2, Activity, ChevronRight } from 'lucide-react';
 import FileUpload from './components/FileUpload';
 import ChartRenderer from './components/ChartRenderer';
-import { UploadedFile, PlotConfig, SeriesConfig, DataPoint, AxisConfig, PALETTES, ColorPalette } from './types';
+import { UploadedFile, PlotConfig, SeriesConfig, DataPoint, AxisConfig, PALETTES } from './types';
 import { parseCSV, combineDatasets, aggregateData } from './services/csvService';
-import { generateDataInsights } from './services/geminiService';
 
 const App: React.FC = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -13,9 +11,6 @@ const App: React.FC = () => {
   const [allColumns, setAllColumns] = useState<string[]>([]);
   
   const [activeTab, setActiveTab] = useState<'upload' | 'visualize'>('upload');
-  const [showAiModal, setShowAiModal] = useState(false);
-  const [geminiLoading, setGeminiLoading] = useState(false);
-  const [insights, setInsights] = useState<string | null>(null);
 
   // Config with default axes
   const [plotConfig, setPlotConfig] = useState<PlotConfig>({
@@ -171,14 +166,6 @@ const App: React.FC = () => {
     a.href = url;
     a.download = 'pareidolia_processed.csv';
     a.click();
-  };
-
-  const handleGenerateInsights = async () => {
-    setGeminiLoading(true);
-    setInsights(null);
-    const result = await generateDataInsights(processedData, plotConfig.xAxisColumn, plotConfig.series);
-    setInsights(result);
-    setGeminiLoading(false);
   };
 
   const renderPreviewCell = (val: any) => {
@@ -609,74 +596,6 @@ const App: React.FC = () => {
       
       {activeTab === 'visualize' && (
         <>
-          <button 
-            onClick={() => setShowAiModal(true)}
-            className="fixed bottom-8 right-8 bg-[#2A2A2A] text-[#F2F0E9] p-4 rounded-sm shadow-[4px_4px_0px_0px_rgba(217,79,43,1)] hover:translate-y-[-2px] transition-all z-50 group border border-[#D94F2B]"
-          >
-            <Sparkles size={24} className="group-hover:rotate-12 transition-transform" />
-          </button>
-
-          {/* AI Modal */}
-          {showAiModal && (
-            <div className="fixed inset-0 bg-[#2A2A2A]/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-              <div className="bg-[#F2F0E9] rounded-sm shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col animate-in zoom-in-95 duration-200 border border-[#D94F2B]">
-                <div className="flex items-center justify-between p-4 border-b border-[#D1D1C7] bg-[#E5E5DC]">
-                    <h3 className="font-bold text-[#2A2A2A] flex items-center gap-2 uppercase tracking-wide">
-                      <Sparkles size={18} className="text-[#D94F2B]"/> AI Neural Analysis
-                    </h3>
-                    <button onClick={() => setShowAiModal(false)} className="text-[#8C8C85] hover:text-[#D94F2B] p-1 rounded transition-colors">
-                      <X size={20} />
-                    </button>
-                </div>
-                
-                <div className="p-6 overflow-y-auto bg-noise">
-                    {!insights && !geminiLoading && (
-                      <div className="text-center py-12">
-                          <div className="bg-[#2A2A2A] w-16 h-16 rounded-sm flex items-center justify-center mx-auto mb-4 text-[#D94F2B] shadow-[4px_4px_0px_0px_rgba(217,79,43,0.3)]">
-                            <Sparkles size={32} />
-                          </div>
-                          <h4 className="text-lg font-bold text-[#2A2A2A] mb-2 uppercase">Awaiting Input</h4>
-                          <p className="text-[#5D6D7E] mb-6 max-w-md mx-auto font-mono text-sm">
-                            Initialize neural scan to detect anomalies and trends in the current signal.
-                          </p>
-                          <button 
-                              onClick={handleGenerateInsights}
-                              disabled={processedData.length === 0}
-                              className="px-6 py-3 bg-[#D94F2B] text-white font-bold uppercase tracking-wider rounded-sm hover:bg-[#C0392B] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                          >
-                              Start Analysis
-                          </button>
-                      </div>
-                    )}
-
-                    {geminiLoading && (
-                      <div className="flex flex-col items-center justify-center py-12 text-[#5D6D7E]">
-                          <RefreshCw className="animate-spin mb-4 text-[#D94F2B]" size={32} />
-                          <p className="font-mono text-sm">Processing neural pathways...</p>
-                      </div>
-                    )}
-
-                    {insights && !geminiLoading && (
-                        <div className="prose prose-stone prose-sm max-w-none">
-                            <div className="flex justify-between items-center mb-4 border-b border-[#D1D1C7] pb-4">
-                              <span className="text-xs font-bold text-[#8C8C85] uppercase tracking-widest">Scan Results</span>
-                              <button 
-                                onClick={handleGenerateInsights} 
-                                className="text-[#D94F2B] hover:text-[#C0392B] text-xs font-bold uppercase flex items-center gap-1"
-                              >
-                                <RefreshCw size={14} /> Re-Scan
-                              </button>
-                            </div>
-                            <div className="whitespace-pre-wrap text-[#2A2A2A] font-mono text-sm leading-relaxed">
-                              {insights}
-                            </div>
-                        </div>
-                    )}
-                </div>
-              </div>
-            </div>
-          )}
-          
           {/* Axis Configuration Modal */}
           {editingAxisId && (
              <div className="fixed inset-0 bg-[#2A2A2A]/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-150">

@@ -1,5 +1,5 @@
 {
   "name": "Pareidolia",
-  "description": "A robust, flexible CSV analysis and plotting tool capable of handling complex formats, multiple files, time-series aggregations, and AI-driven insights.",
+  "description": "A robust, flexible CSV analysis and plotting tool capable of handling complex formats, multiple files, and time-series aggregations.",
   "requestFramePermissions": []
 }
