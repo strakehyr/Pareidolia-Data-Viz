@@ -130,6 +130,11 @@ const parseExclusions = (input: string): Set<number> => {
     return indices;
 };
 
+const cleanHeader = (header: string): string => {
+    // Remove invisible characters, BOM, and trim whitespace
+    return header.replace(/[\uFEFF\u200B]/g, '').trim();
+};
+
 export const parseCSV = (
   content: string, 
   config: { 
@@ -140,8 +145,14 @@ export const parseCSV = (
     excludeColumns?: string // "1, 4" (1-based)
   }
 ): ParsedResult => {
+  // 0. Clean content (Strip BOM)
+  let cleanContent = content;
+  if (cleanContent.charCodeAt(0) === 0xFEFF) {
+      cleanContent = cleanContent.slice(1);
+  }
+
   // 1. Split Lines and Filter Empty
-  let allLines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
+  let allLines = cleanContent.split(/\r?\n/).filter(l => l.trim().length > 0);
   if (allLines.length === 0) return { data: [], columns: [] };
 
   // 2. Row Exclusion Logic (1-based indexing for user)
@@ -149,6 +160,7 @@ export const parseCSV = (
   
   const linesToProcess: string[] = [];
   allLines.forEach((line, idx) => {
+      // Logic: User sees line numbers starting at 1. `idx` is 0-based.
       if (!excludedRowIndices.has(idx + 1)) {
           linesToProcess.push(line);
       }
@@ -157,28 +169,34 @@ export const parseCSV = (
   if (linesToProcess.length === 0) return { data: [], columns: [] };
 
   // 3. Detect Delimiter/Decimal
-  const delimiter = config.delimiter || detectDelimiter(content);
-  const decimalSeparator = config.decimalSeparator || detectDecimalSeparator(content, delimiter);
+  const delimiter = config.delimiter || detectDelimiter(cleanContent);
+  const decimalSeparator = config.decimalSeparator || detectDecimalSeparator(cleanContent, delimiter);
 
   // 4. Header Processing
   let headers: string[] = [];
   let startIndex = 0;
 
   if (config.hasHeader) {
-    headers = parseCSVLine(linesToProcess[0], delimiter).map(h => h.replace(/^"|"$/g, ''));
+    headers = parseCSVLine(linesToProcess[0], delimiter)
+        .map(h => h.replace(/^"|"$/g, ''))
+        .map(cleanHeader); // Aggressively clean headers to match duplicates across files
     startIndex = 1;
   } else {
     const firstLine = parseCSVLine(linesToProcess[0], delimiter);
     headers = firstLine.map((_, i) => `Column ${i + 1}`);
   }
 
-  // 4b. Auto-detect "Unit Rows" or secondary headers to skip (Common in scientific data)
-  // FIX: Check content directly, do not rely on index matching with excluded rows.
-  // If the line immediately following the effective header looks like a unit row, skip it.
+  // 4b. Auto-detect "Unit Rows" to skip.
+  // Logic: Only skip if the line specifically contains bracketed units or parens, 
+  // preventing false positives on data rows.
   if (startIndex < linesToProcess.length) {
       const secondLine = linesToProcess[startIndex];
-      // Check for common unit indicators: [unit], (unit), or explicit "unit" keyword
-      if (secondLine.includes('[') || secondLine.includes('(') || secondLine.toLowerCase().includes('unit')) {
+      const hasBrackets = /\[.*\]/.test(secondLine);
+      const hasParens = /\(.*\)/.test(secondLine);
+      const hasUnitKeyword = secondLine.toLowerCase().includes('unit');
+      
+      // Heuristic: If it has brackets/parens OR explicitly says "unit", treat as metadata row
+      if (hasBrackets || hasParens || hasUnitKeyword) {
            startIndex++;
       }
   }
@@ -201,6 +219,7 @@ export const parseCSV = (
   for (let i = startIndex; i < linesToProcess.length; i++) {
     const rawValues = parseCSVLine(linesToProcess[i], delimiter);
     
+    // Ignore lines that are drastically shorter than header (often trailing footers)
     if (rawValues.length < headers.length * 0.5) continue; 
 
     const row: DataPoint = {};
@@ -274,7 +293,7 @@ export const combineDatasets = (files: UploadedFile[]): { combinedData: DataPoin
         return {
             file: f,
             timeColOriginal: timeColOriginal,
-            prefix: f.name.replace('.csv', '')
+            prefix: f.name.replace('.csv', '').replace('.txt', '')
         };
     });
 
@@ -302,29 +321,30 @@ export const combineDatasets = (files: UploadedFile[]): { combinedData: DataPoin
 
                 file.columns.forEach(col => {
                     let finalName = '';
-                    // 1. Check for rename
+                    
+                    // 1. Check for User Rename (High Priority)
                     if (renames[col]) {
                         finalName = renames[col];
                     } else {
-                         // 2. If it's the time column, keep as is (or normalize?)
+                         // 2. If it's the time column, keep as is
                          if (col === timeColOriginal) {
-                             finalName = col; // Keep original time column name
+                             finalName = col; 
                         } else {
-                             // 3. Apply Prefix logic
+                             // 3. Apply Prefix logic or Merge
                              if (file.prefixColumns) {
                                  finalName = `${prefix} - ${col}`;
                              } else {
-                                 finalName = col; // No prefix -> Merge with other files having same col name
+                                 finalName = col; // Merge: "Voltage" in file 1 == "Voltage" in file 2
                              }
                         }
                     }
 
-                    // Merge Logic: Overwrite if value exists and is not null
+                    // Merge Logic: Last valid write wins for same-named columns at same timestamp
                     const val = row[col];
                     if (val !== null && val !== undefined) {
                          existing[finalName] = val;
                     } else if (existing[finalName] === undefined) {
-                        existing[finalName] = null; // Init if not exists
+                        existing[finalName] = null; // Initialize null if not present
                     }
                     
                     if (!allColumns.includes(finalName)) {
