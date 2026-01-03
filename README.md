@@ -1,75 +1,28 @@
 # Pareidolia // Data Viz
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-active-success.svg)
+Pareidolia is a utility for parsing, merging, and visualizing time-series data from CSV files. It is built to handle common data cleaning tasks like delimiter detection, decimal separator differences, and irregular timestamp formats.
 
-**Pareidolia** is a robust, flexible time-series data visualizer and manipulator. It is designed to ingest "dirty" CSVs, intelligently merge multiple datasets, and produce beautiful, publication-ready interactive charts with a retro-modern "Cafe Racer" aesthetic.
+## Features
 
-## ✨ Key Features
+- **Ingestion**: Automated detection of delimiters and decimal formats.
+- **Cleaning**: Skip specific rows or columns. Handles "unit rows" automatically.
+- **Merging**: Combine multiple files by column name or index. 
+- **Visualization**: Interactive charts with multi-axis support and time-series aggregation.
+- **AI Insights**: Brief summaries and trend analysis via Gemini.
 
-### 🛠 Robust Data Ingestion
-- **Smart Detection**: Automatically detects delimiters (`,`, `;`, `\t`) and decimal separators (`.` vs `,`).
-- **Flexible Parsing**: Handles European (`DD/MM/YYYY`) and ISO (`YYYY-MM-DD`) datetime formats seamlessly.
-- **Cleaning**: Easily exclude specific rows (e.g., "2, 3-5") or columns by index.
-- **Unit Handling**: Auto-detects and skips metadata/unit rows often found in scientific exports.
+## Usage
 
-### 🔗 Advanced Data Wrangling
-- **Multi-File Merging**: Upload multiple CSVs at once.
-- **Intelligent Combination**:
-  - **Merge by Name**: Rename columns to the same alias across different files to combine them into a single continuous series (Last-Write-Wins logic).
-  - **Prefix Mode**: Option to automatically prefix columns with filenames to keep datasets distinct.
-- **Aggregation**: built-in time resampling (15min, Hourly, Daily, Weekly, etc.) using Sum, Mean, Min, Max, or Abs Sum.
+1. **Upload**: Drop CSV files into the data source tab.
+2. **Configure**: Adjust parsing settings or rename columns if files need to be merged.
+3. **Visualize**: Select the time column and add data series to the plot.
+4. **Export**: Download the processed and combined dataset as a clean CSV.
 
-### 📈 Visualization
-- **Interactive Charts**: built on Recharts with custom "Glow" effects and smooth interactions.
-- **Multi-Axis Support**: Create unlimited custom Y-axes (Left/Right) with independent scaling.
-- **Chart Types**: Line, Area, Bar, and Scatter plots supported per-series.
-- **Aesthetics**: Custom "Cafe Racer" color palettes and a cream/charcoal/rust design system.
+## Design
 
-## 🚀 Getting Started
+The application uses a retro-modern aesthetic with high contrast and sharp geometry. 
 
-### Prerequisites
-- Node.js (v16+)
+- Background: #F2F0E9 (Cream)
+- Primary: #2A2A2A (Charcoal)
+- Accent: #D94F2B (Rust)
 
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/pareidolia.git
-   cd pareidolia
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run the application**
-   ```bash
-   npm start
-   ```
-
-## 🎮 Usage Guide
-
-1. **Data Source Tab**:
-   - Drop your CSV files.
-   - Use the **File Configuration** cards to tweak parsing (skip rows, delimiters).
-   - Use the **Column Mapping** section to rename columns. *Tip: Rename columns from different files to the same name to merge them.*
-   - Check the **Data Preview** at the bottom to verify structure.
-
-2. **Visualize Tab**:
-   - Select your **X-Axis** (usually a datetime column).
-   - Click **(+)** to add data series.
-   - Assign series to **Left/Right** axes or create **New Axes** dynamically.
-   - Use the **Settings** icon next to an axis to fix Min/Max ranges or rename the axis.
-
-## 🎨 Aesthetics
-
-Pareidolia uses a custom design system:
-- **Background**: `#F2F0E9` (Cream) with SVG Noise Texture.
-- **Foreground**: `#2A2A2A` (Charcoal).
-- **Accents**: `#D94F2B` (Rust/Orange).
-
-## 📄 License
-
-This project is licensed under the MIT License.
+License: MIT

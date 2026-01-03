@@ -20,6 +20,7 @@ export interface UploadedFile {
   excludeColumns: string; // "1, 4"
   hasHeader: boolean;
   prefixColumns: boolean; // Defaults to false
+  includeIndex: boolean; // Per-file index inclusion
   decimalSeparator: '.' | ',';
   columns: string[];
   columnRenames?: { [original: string]: string };

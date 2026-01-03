@@ -1,0 +1,75 @@
+/* Base styles */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background-color: #F2F0E9;
+  color: #2A2A2A;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.bg-noise {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E5E5DC; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B0B0A8; 
+  border: 2px solid #E5E5DC;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2A2A2A; 
+}
+
+/* Transitions */
+.transition-all {
+  transition-duration: 200ms;
+}
+
+/* Table styling for better readability */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  background-color: #E5E5DC;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+td, th {
+  border: 1px solid #D1D1C7;
+}
